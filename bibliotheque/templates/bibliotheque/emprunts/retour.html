@@ -1,0 +1,88 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Retour de livre{% endblock %}
+{% block page_title %}Enregistrer un retour{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-undo" style="color:var(--primary)"></i> Retour de livre</h1>
+  <a href="{% url 'bibliotheque:liste_emprunts' %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+</div>
+
+<div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px;">
+
+  <!-- Emprunt summary -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Détails de l'emprunt #{{ emprunt.pk }}</span>
+      {% if emprunt.statut == 'en_retard' %}
+      <span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> En retard ({{ emprunt.jours_retard }} j.)</span>
+      {% else %}
+      <span class="badge badge-info">En cours</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Lecteur</label>
+          <span class="detail-value"><strong>{{ emprunt.lecteur.nom_complet }}</strong></span>
+        </div>
+        <div class="detail-item">
+          <label>Livre</label>
+          <span class="detail-value"><strong>{{ emprunt.livre.titre }}</strong></span>
+        </div>
+        <div class="detail-item">
+          <label>Auteur</label>
+          <span class="detail-value">{{ emprunt.livre.auteur }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Date d'emprunt</label>
+          <span class="detail-value">{{ emprunt.date_emprunt|date:"d/m/Y" }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Retour prévu le</label>
+          <span class="detail-value" {% if emprunt.statut == 'en_retard' %}style="color:var(--danger);font-weight:700"{% endif %}>
+            {{ emprunt.date_retour_prevue|date:"d/m/Y" }}
+          </span>
+        </div>
+        {% if emprunt.statut == 'en_retard' %}
+        <div class="detail-item">
+          <label>Pénalité estimée</label>
+          <span class="detail-value" style="color:var(--danger);font-weight:700">
+            {{ emprunt.jours_retard }} j. × tarif = à calculer
+          </span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Return form -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Confirmer le retour</span>
+    </div>
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Date de retour effectif</label>
+          {{ form.date_retour_effective }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes de retour</label>
+          {{ form.notes }}
+        </div>
+
+        <div style="background:rgba(249,115,22,.06);border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px;color:#9a3412;">
+          <i class="fas fa-coins"></i> La pénalité de retard sera calculée automatiquement selon les paramètres configurés.
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <a href="{% url 'bibliotheque:liste_emprunts' %}" class="btn btn-outline">Annuler</a>
+          <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Confirmer le retour</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

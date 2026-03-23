@@ -1,0 +1,31 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Confirmer la suppression{% endblock %}
+{% block page_title %}Confirmer la suppression{% endblock %}
+
+{% block content %}
+<div class="confirm-card">
+  <div class="big-icon"><i class="fas fa-exclamation-triangle"></i></div>
+  <h2>Supprimer ce {{ type }} ?</h2>
+  <p style="color:var(--text-muted);margin-bottom:4px;font-size:14px;">
+    Vous êtes sur le point de supprimer :
+  </p>
+  <p style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:24px;">
+    « {{ objet }} »
+  </p>
+  <p style="color:var(--danger);font-size:13px;margin-bottom:28px;">
+    <strong><i class="fas fa-exclamation-triangle"></i> Cette action est irréversible.</strong>
+  </p>
+
+  <div style="display:flex;gap:12px;justify-content:center;">
+    <a href="javascript:history.back()" class="btn btn-outline">
+      <i class="fas fa-times"></i> Annuler
+    </a>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        <i class="fas fa-trash"></i> Oui, supprimer
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

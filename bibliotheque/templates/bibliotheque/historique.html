@@ -1,0 +1,84 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Historique{% endblock %}
+{% block page_title %}Historique des emprunts{% endblock %}
+{% block page_subtitle %}{{ emprunts.count }} emprunt{{ emprunts.count|pluralize }} au total{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-history" style="color:var(--primary)"></i> Historique complet</h1>
+</div>
+
+<form method="get" class="filter-bar">
+  <div class="search-bar" style="flex:1;min-width:260px;">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher par lecteur ou livre..."/>
+  </div>
+  <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
+  {% if q %}<a href="{% url 'bibliotheque:historique' %}" class="btn btn-outline"><i class="fas fa-times"></i> Effacer</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Lecteur</th>
+          <th>Livre</th>
+          <th>Emprunt</th>
+          <th>Retour prévu</th>
+          <th>Retour effectif</th>
+          <th>Statut</th>
+          <th>Pénalité</th>
+          <th>Enregistré par</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in emprunts %}
+        <tr data-searchable>
+          <td style="color:var(--text-muted);font-size:12px;">#{{ emp.pk }}</td>
+          <td>
+            <a href="{% url 'bibliotheque:detail_lecteur' emp.lecteur.pk %}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+              {{ emp.lecteur.nom_complet }}
+            </a>
+          </td>
+          <td>
+            <strong>{{ emp.livre.titre|truncatechars:35 }}</strong>
+            <br><small style="color:var(--text-muted)">{{ emp.livre.auteur }}</small>
+          </td>
+          <td>{{ emp.date_emprunt|date:"d/m/Y" }}</td>
+          <td>{{ emp.date_retour_prevue|date:"d/m/Y" }}</td>
+          <td>{{ emp.date_retour_effective|date:"d/m/Y"|default:"—" }}</td>
+          <td>
+            {% if emp.statut == 'en_cours' %}<span class="badge badge-info">En cours</span>
+            {% elif emp.statut == 'retourne' %}<span class="badge badge-success">Retourné</span>
+            {% elif emp.statut == 'en_retard' %}<span class="badge badge-danger">En retard</span>{% endif %}
+          </td>
+          <td>
+            {% if emp.penalite > 0 %}
+              <span class="badge badge-warning">{{ emp.penalite|floatformat:0 }} FCFA</span>
+            {% else %}—{% endif %}
+          </td>
+          <td style="color:var(--text-muted);font-size:12px;">
+            {{ emp.enregistre_par.get_full_name|default:emp.enregistre_par.username|default:"—" }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-history"></i></div>
+              <h3>Aucun historique</h3>
+              <p>L'historique des emprunts apparaîtra ici.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="page-section">
+    <span>{{ emprunts.count }} enregistrement{{ emprunts.count|pluralize }}</span>
+  </div>
+</div>
+{% endblock %}

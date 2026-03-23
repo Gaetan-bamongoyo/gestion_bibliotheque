@@ -1,0 +1,73 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Paramètres{% endblock %}
+{% block page_title %}Paramètres d'emprunt{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-cog" style="color:var(--primary)"></i> Paramètres du système</h1>
+</div>
+
+<div class="card" style="max-width:560px;margin:0 auto;">
+  <div class="card-header">
+    <span class="card-title">Règles d'emprunt</span>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-book"></i> Nombre maximum de livres par lecteur</label>
+        {{ form.nb_max_livres }}
+        <small style="color:var(--text-muted)">Un lecteur ne pourra pas emprunter plus que ce nombre simultanément.</small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-calendar-alt"></i> Durée d'emprunt (jours)</label>
+        {{ form.duree_emprunt_jours }}
+        <small style="color:var(--text-muted)">Durée standard d'un emprunt en jours (calculée automatiquement).</small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-coins"></i> Pénalité par jour de retard (FCFA)</label>
+        {{ form.penalite_par_jour }}
+        <small style="color:var(--text-muted)">Montant appliqué pour chaque jour de retard lors du retour.</small>
+      </div>
+
+      <hr class="divider"/>
+
+      {% if params.mise_a_jour %}
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+        <i class="fas fa-clock"></i> Dernière modification : {{ params.mise_a_jour|date:"d/m/Y à H:i" }}
+      </p>
+      {% endif %}
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="submit" class="btn btn-accent"><i class="fas fa-save"></i> Enregistrer les paramètres</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Current values display -->
+<div class="card" style="max-width:560px;margin:20px auto 0;">
+  <div class="card-header">
+    <span class="card-title">Paramètres actuels</span>
+  </div>
+  <div class="card-body">
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Maximum de livres</label>
+        <span class="detail-value"><strong>{{ params.nb_max_livres }}</strong> livre{{ params.nb_max_livres|pluralize }}</span>
+      </div>
+      <div class="detail-item">
+        <label>Durée d'emprunt</label>
+        <span class="detail-value"><strong>{{ params.duree_emprunt_jours }}</strong> jours</span>
+      </div>
+      <div class="detail-item">
+        <label>Pénalité de retard</label>
+        <span class="detail-value"><strong>{{ params.penalite_par_jour|floatformat:0 }}</strong> FCFA / jour</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

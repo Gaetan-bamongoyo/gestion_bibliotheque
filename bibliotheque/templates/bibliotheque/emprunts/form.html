@@ -1,0 +1,62 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Nouvel emprunt{% endblock %}
+{% block page_title %}{{ titre }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-hand-holding-heart" style="color:var(--primary)"></i> {{ titre }}</h1>
+  <a href="{% url 'bibliotheque:liste_emprunts' %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+</div>
+
+<div class="card" style="max-width:640px;margin:0 auto;">
+  <div class="card-header">
+    <span class="card-title">Détails de l'emprunt</span>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label">Lecteur <span style="color:var(--danger)">*</span></label>
+        {{ form.lecteur }}
+        {% if form.lecteur.errors %}<small style="color:var(--danger)">{{ form.lecteur.errors.0 }}</small>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Livre <span style="color:var(--danger)">*</span></label>
+        {{ form.livre }}
+        <small style="color:var(--text-muted)">Seuls les livres disponibles sont affichés.</small>
+        {% if form.livre.errors %}<small style="color:var(--danger)">{{ form.livre.errors.0 }}</small>{% endif %}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date d'emprunt</label>
+          {{ form.date_emprunt }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date de retour prévue</label>
+          {{ form.date_retour_prevue }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        {{ form.notes }}
+      </div>
+
+      <hr class="divider"/>
+
+      <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px;color:var(--text-muted);">
+        <i class="fas fa-info-circle" style="color:var(--info)"></i>
+        La quantité disponible du livre sera automatiquement mise à jour après l'enregistrement.
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <a href="{% url 'bibliotheque:liste_emprunts' %}" class="btn btn-outline"><i class="fas fa-times"></i> Annuler</a>
+        <button type="submit" class="btn btn-accent"><i class="fas fa-save"></i> Enregistrer l'emprunt</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

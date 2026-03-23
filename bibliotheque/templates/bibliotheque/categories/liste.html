@@ -1,0 +1,53 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Catégories{% endblock %}
+{% block page_title %}Catégories{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-tags" style="color:var(--primary)"></i> Catégories</h1>
+  <a href="{% url 'bibliotheque:ajouter_categorie' %}" class="btn btn-accent"><i class="fas fa-plus"></i> Ajouter</a>
+</div>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Livres</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">#{{ cat.pk }}</td>
+          <td><strong>{{ cat.nom }}</strong></td>
+          <td style="color:var(--text-muted);">{{ cat.description|default:"—"|truncatechars:80 }}</td>
+          <td><span class="badge badge-primary">{{ cat.nb_livres }} livre{{ cat.nb_livres|pluralize }}</span></td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="{% url 'bibliotheque:modifier_categorie' cat.pk %}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
+              <a href="{% url 'bibliotheque:supprimer_categorie' cat.pk %}" class="btn btn-danger btn-sm"
+                 onclick="return confirm('Supprimer la catégorie « {{ cat.nom }} » ?')"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-tags"></i></div>
+              <h3>Aucune catégorie</h3>
+              <p>Créez votre première catégorie.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

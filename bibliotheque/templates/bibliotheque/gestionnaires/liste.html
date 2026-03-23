@@ -1,0 +1,75 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Utilisateurs{% endblock %}
+{% block page_title %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-user-cog" style="color:var(--primary)"></i> Utilisateurs du système</h1>
+  <a href="{% url 'bibliotheque:ajouter_gestionnaire' %}" class="btn btn-accent"><i class="fas fa-plus"></i> Ajouter</a>
+</div>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom / Prénom</th>
+          <th>Identifiant</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Créé le</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in utilisateurs %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">#{{ user.pk }}</td>
+          <td>
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            {% if user == request.user %}<span class="badge badge-secondary" style="margin-left:4px;">Moi</span>{% endif %}
+          </td>
+          <td><code style="background:#f1f5f9;padding:2px 7px;border-radius:4px;font-size:12px;">{{ user.username }}</code></td>
+          <td>{{ user.email|default:"—" }}</td>
+          <td>
+            {% if user.role == 'admin' %}
+              <span class="badge badge-danger"><i class="fas fa-crown"></i> Administrateur</span>
+            {% else %}
+              <span class="badge badge-info"><i class="fas fa-user"></i> Gestionnaire</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if user.is_active %}
+              <span class="badge badge-success">Actif</span>
+            {% else %}
+              <span class="badge badge-secondary">Inactif</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--text-muted);font-size:12.5px;">{{ user.date_joined|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="{% url 'bibliotheque:modifier_gestionnaire' user.pk %}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
+              {% if user != request.user %}
+              <a href="{% url 'bibliotheque:supprimer_gestionnaire' user.pk %}" class="btn btn-danger btn-sm"
+                 onclick="return confirm('Supprimer l\'utilisateur {{ user.username }} ?')"><i class="fas fa-trash"></i></a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
+              <h3>Aucun utilisateur</h3>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'bibliotheque/base.html' %}
+
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block page_subtitle %}Vue d'ensemble de la bibliothèque{% endblock %}
+
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card blue">
+    <div class="stat-icon blue"><i class="fas fa-book"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_livres }}</div>
+      <div class="stat-label">Total livres</div>
+    </div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-icon green"><i class="fas fa-book-open"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ livres_disponibles }}</div>
+      <div class="stat-label">Disponibles</div>
+    </div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="fas fa-hand-holding-heart"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ livres_empruntes }}</div>
+      <div class="stat-label">En cours d'emprunt</div>
+    </div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_lecteurs }}</div>
+      <div class="stat-label">Lecteurs actifs</div>
+    </div>
+  </div>
+  {% if total_retards > 0 %}
+  <div class="stat-card red">
+    <div class="stat-icon red"><i class="fas fa-exclamation-circle"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_retards }}</div>
+      <div class="stat-label">Retards</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+  <!-- RECENT LOANS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-clock" style="color:var(--accent)"></i> Emprunts récents</span>
+      <a href="{% url 'bibliotheque:liste_emprunts' %}" class="btn btn-outline btn-sm">Voir tout</a>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Lecteur</th>
+            <th>Livre</th>
+            <th>Retour prévu</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emprunt in emprunts_recents %}
+          <tr>
+            <td><strong>{{ emprunt.lecteur.nom_complet }}</strong></td>
+            <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ emprunt.livre.titre }}</td>
+            <td>{{ emprunt.date_retour_prevue|date:"d/m/Y" }}</td>
+            <td>
+              {% if emprunt.statut == 'en_cours' %}<span class="badge badge-info">En cours</span>
+              {% elif emprunt.statut == 'retourne' %}<span class="badge badge-success">Retourné</span>
+              {% elif emprunt.statut == 'en_retard' %}<span class="badge badge-danger">En retard</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">Aucun emprunt récent.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- OVERDUE -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> Retards de retour</span>
+      <a href="{% url 'bibliotheque:liste_emprunts' %}?statut=en_retard" class="btn btn-outline btn-sm">Voir tout</a>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Lecteur</th>
+            <th>Livre</th>
+            <th>Jours retard</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emprunt in retards %}
+          <tr>
+            <td><strong>{{ emprunt.lecteur.nom_complet }}</strong></td>
+            <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ emprunt.livre.titre }}</td>
+            <td><span class="badge badge-danger">{{ emprunt.jours_retard }} j.</span></td>
+            <td>
+              <a href="{% url 'bibliotheque:retour_livre' emprunt.pk %}" class="btn btn-warning btn-sm">
+                <i class="fas fa-undo"></i> Retour
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px"><i class="fas fa-check-circle" style="color:var(--success)"></i> Aucun retard !</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="card" style="margin-top:24px;">
+  <div class="card-header">
+    <span class="card-title"><i class="fas fa-bolt" style="color:var(--warning)"></i> Actions rapides</span>
+  </div>
+  <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="{% url 'bibliotheque:nouvel_emprunt' %}" class="btn btn-accent">
+      <i class="fas fa-plus"></i> Nouvel emprunt
+    </a>
+    <a href="{% url 'bibliotheque:ajouter_lecteur' %}" class="btn btn-primary">
+      <i class="fas fa-user-plus"></i> Enregistrer un lecteur
+    </a>
+    <a href="{% url 'bibliotheque:liste_emprunts' %}?statut=en_retard" class="btn btn-danger">
+      <i class="fas fa-clock"></i> Voir les retards
+    </a>
+    {% if request.user.est_admin %}
+    <a href="{% url 'bibliotheque:ajouter_livre' %}" class="btn btn-success">
+      <i class="fas fa-book-medical"></i> Ajouter un livre
+    </a>
+    <a href="{% url 'bibliotheque:statistiques' %}" class="btn btn-info">
+      <i class="fas fa-chart-bar"></i> Statistiques
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Pass retards count to sidebar
+  document.addEventListener('DOMContentLoaded', function() {
+    window.totalRetards = {{ total_retards }};
+  });
+</script>
+{% endblock %}

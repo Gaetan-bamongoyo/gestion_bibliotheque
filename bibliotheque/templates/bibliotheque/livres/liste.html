@@ -1,0 +1,112 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Livres{% endblock %}
+{% block page_title %}Gestion des livres{% endblock %}
+{% block page_subtitle %}{{ livres.count }} livre{{ livres.count|pluralize }} trouvé{{ livres.count|pluralize }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-book" style="color:var(--primary)"></i> Livres</h1>
+  <div style="display:flex;gap:10px;align-items:center;">
+    {% if request.user.est_admin %}
+    <a href="{% url 'bibliotheque:ajouter_livre' %}" class="btn btn-accent">
+      <i class="fas fa-plus"></i> Ajouter un livre
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- FILTERS -->
+<form method="get" class="filter-bar">
+  <div class="search-bar" style="flex:1;min-width:220px;">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher par titre, auteur, ISBN..."/>
+  </div>
+  <select name="categorie" class="form-select" style="width:220px;">
+    <option value="">Toutes catégories</option>
+    {% for cat in categories %}
+    <option value="{{ cat.pk }}" {% if categorie_id == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.nom }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrer</button>
+  <a href="{% url 'bibliotheque:liste_livres' %}" class="btn btn-outline"><i class="fas fa-times"></i> Réinitialiser</a>
+</form>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Titre</th>
+          <th>Auteur</th>
+          <th>Catégorie</th>
+          <th>Année</th>
+          <th>Quantité</th>
+          <th>Disponibilité</th>
+          {% if request.user.est_admin %}<th>Actions</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for livre in livres %}
+        <tr data-searchable>
+          <td style="color:var(--text-muted);font-size:12px;">#{{ livre.pk }}</td>
+          <td>
+            <strong>{{ livre.titre }}</strong>
+            {% if livre.isbn %}<br><small style="color:var(--text-muted)">ISBN: {{ livre.isbn }}</small>{% endif %}
+          </td>
+          <td>{{ livre.auteur }}</td>
+          <td>
+            {% if livre.categorie %}
+            <span class="badge badge-primary">{{ livre.categorie.nom }}</span>
+            {% else %}<span style="color:var(--text-muted)">—</span>{% endif %}
+          </td>
+          <td>{{ livre.annee_publication|default:"—" }}</td>
+          <td>{{ livre.quantite_totale }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              {% if livre.quantite_disponible == 0 %}
+                <span class="badge badge-danger"><i class="fas fa-times-circle"></i> Indisponible</span>
+              {% else %}
+                <span class="badge badge-success"><i class="fas fa-check-circle"></i> {{ livre.quantite_disponible }} dispo.</span>
+              {% endif %}
+            </div>
+            <div class="avail-bar" style="width:80px;margin-top:4px;">
+              <div class="avail-fill" style="width:{% if livre.quantite_totale > 0 %}{% widthratio livre.quantite_disponible livre.quantite_totale 100 %}{% else %}0{% endif %}%;{% if livre.quantite_disponible == 0 %}background:var(--danger){% endif %}"></div>
+            </div>
+          </td>
+          {% if request.user.est_admin %}
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="{% url 'bibliotheque:modifier_livre' livre.pk %}" class="btn btn-info btn-sm" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{% url 'bibliotheque:supprimer_livre' livre.pk %}" class="btn btn-danger btn-sm" title="Supprimer"
+                 onclick="return confirm('Supprimer le livre « {{ livre.titre }} » ?')">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-book"></i></div>
+              <h3>Aucun livre trouvé</h3>
+              <p>Essayez une autre recherche ou ajoutez de nouveaux livres.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="page-section">
+    <span>{{ livres.count }} livre{{ livres.count|pluralize }} au total</span>
+    {% if request.user.est_admin %}
+    <a href="{% url 'bibliotheque:ajouter_livre' %}" class="btn btn-accent btn-sm"><i class="fas fa-plus"></i> Ajouter</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

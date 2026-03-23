@@ -1,0 +1,105 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Lecteurs{% endblock %}
+{% block page_title %}Gestion des lecteurs{% endblock %}
+{% block page_subtitle %}{{ lecteurs.count }} lecteur{{ lecteurs.count|pluralize }} trouvé{{ lecteurs.count|pluralize }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-users" style="color:var(--primary)"></i> Lecteurs</h1>
+  <a href="{% url 'bibliotheque:ajouter_lecteur' %}" class="btn btn-accent">
+    <i class="fas fa-user-plus"></i> Enregistrer un lecteur
+  </a>
+</div>
+
+<form method="get" class="filter-bar">
+  <div class="search-bar" style="flex:1;min-width:240px;">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher par nom, prénom, email, téléphone..."/>
+  </div>
+  <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
+  {% if q %}<a href="{% url 'bibliotheque:liste_lecteurs' %}" class="btn btn-outline"><i class="fas fa-times"></i> Réinitialiser</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom & Prénom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Inscription</th>
+          <th>Emprunts actifs</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lecteur in lecteurs %}
+        <tr data-searchable>
+          <td style="color:var(--text-muted);font-size:12px;">#{{ lecteur.pk }}</td>
+          <td>
+            <a href="{% url 'bibliotheque:detail_lecteur' lecteur.pk %}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+              {{ lecteur.nom_complet }}
+            </a>
+          </td>
+          <td>{{ lecteur.email|default:"—" }}</td>
+          <td>{{ lecteur.telephone|default:"—" }}</td>
+          <td>{{ lecteur.date_inscription|date:"d/m/Y" }}</td>
+          <td>
+            {% with nb=lecteur.emprunts_en_cours %}
+              {% if nb > 0 %}
+                <span class="badge badge-warning">{{ nb }} emprunt{{ nb|pluralize }}</span>
+              {% else %}
+                <span class="badge badge-secondary">aucun</span>
+              {% endif %}
+            {% endwith %}
+          </td>
+          <td>
+            {% if lecteur.actif %}
+              <span class="badge badge-success">Actif</span>
+            {% else %}
+              <span class="badge badge-danger">Inactif</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="{% url 'bibliotheque:detail_lecteur' lecteur.pk %}" class="btn btn-primary btn-sm" title="Voir">
+                <i class="fas fa-eye"></i>
+              </a>
+              <a href="{% url 'bibliotheque:modifier_lecteur' lecteur.pk %}" class="btn btn-info btn-sm" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{% url 'bibliotheque:nouvel_emprunt' %}?lecteur={{ lecteur.pk }}" class="btn btn-accent btn-sm" title="Emprunt">
+                <i class="fas fa-hand-holding-heart"></i>
+              </a>
+              {% if request.user.est_admin %}
+              <a href="{% url 'bibliotheque:supprimer_lecteur' lecteur.pk %}" class="btn btn-danger btn-sm" title="Supprimer"
+                 onclick="return confirm('Supprimer le lecteur {{ lecteur.nom_complet }} ?')">
+                <i class="fas fa-trash"></i>
+              </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-users"></i></div>
+              <h3>Aucun lecteur trouvé</h3>
+              <p>Enregistrez votre premier lecteur.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="page-section">
+    <span>{{ lecteurs.count }} lecteur{{ lecteurs.count|pluralize }}</span>
+    <a href="{% url 'bibliotheque:ajouter_lecteur' %}" class="btn btn-accent btn-sm"><i class="fas fa-plus"></i> Ajouter</a>
+  </div>
+</div>
+{% endblock %}

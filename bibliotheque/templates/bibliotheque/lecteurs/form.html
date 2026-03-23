@@ -1,0 +1,66 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}{{ titre }}{% endblock %}
+{% block page_title %}{{ titre }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-user" style="color:var(--primary)"></i> {{ titre }}</h1>
+  <a href="{% url 'bibliotheque:liste_lecteurs' %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+</div>
+
+<div class="card" style="max-width:680px;margin:0 auto;">
+  <div class="card-header">
+    <span class="card-title">Informations du lecteur</span>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prénom <span style="color:var(--danger)">*</span></label>
+          {{ form.prenom }}
+          {% if form.prenom.errors %}<small style="color:var(--danger)">{{ form.prenom.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom <span style="color:var(--danger)">*</span></label>
+          {{ form.nom }}
+          {% if form.nom.errors %}<small style="color:var(--danger)">{{ form.nom.errors.0 }}</small>{% endif %}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Téléphone</label>
+          {{ form.telephone }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Adresse</label>
+        {{ form.adresse }}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date d'inscription</label>
+          {{ form.date_inscription }}
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:30px;">
+          {{ form.actif }}
+          <label class="form-label" style="margin:0;">Lecteur actif</label>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <a href="{% url 'bibliotheque:liste_lecteurs' %}" class="btn btn-outline"><i class="fas fa-times"></i> Annuler</a>
+        <button type="submit" class="btn btn-accent"><i class="fas fa-save"></i> Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

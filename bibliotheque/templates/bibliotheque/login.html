@@ -1,0 +1,200 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion — BiblioCampus</title>
+  <link rel="stylesheet" href="{% static 'bibliotheque/css/style.css' %}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #152a45 0%, #1e3a5f 50%, #2a5187 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+      color: white;
+    }
+
+    .login-logo {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 24px rgba(249,115,22,.35);
+    }
+
+    .login-header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .login-header p {
+      opacity: .65;
+      font-size: 14px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+
+    .login-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .login-card .sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .input-group .input-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 15px;
+      pointer-events: none;
+    }
+
+    .input-group input {
+      padding-left: 40px;
+      height: 46px;
+      font-size: 14px;
+    }
+
+    .floating-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .btn-login {
+      width: 100%;
+      height: 46px;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1e3a5f, #2a5187);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover {
+      background: linear-gradient(135deg, #152a45, #1e3a5f);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(30,58,95,.3);
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      color: rgba(255,255,255,.5);
+      font-size: 12px;
+    }
+
+    .error-box {
+      background: rgba(239,68,68,.1);
+      border-left: 4px solid #ef4444;
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 13px;
+      color: #b91c1c;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-header">
+    <div class="login-logo"><i class="fas fa-book-reader"></i></div>
+    <h1>BiblioCampus</h1>
+    <p>Système de gestion de bibliothèque</p>
+  </div>
+
+  <div class="login-card">
+    <h2>Connexion</h2>
+    <p class="sub">Entrez vos identifiants pour accéder au système.</p>
+
+    {% if form.errors %}
+    <div class="error-box">
+      <i class="fas fa-exclamation-circle"></i> Identifiant ou mot de passe incorrect. Veuillez réessayer.
+    </div>
+    {% endif %}
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="error-box" style="border-left-color: {% if message.tags == 'success' %}#22c55e{% else %}#ef4444{% endif %}; background: rgba({% if message.tags == 'success' %}34,197,94{% else %}239,68,68{% endif %},.1); color: {% if message.tags == 'success' %}#15803d{% else %}#b91c1c{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <label class="floating-label" for="id_username">Nom d'utilisateur</label>
+      <div class="input-group">
+        <i class="fas fa-user input-icon"></i>
+        {{ form.username }}
+      </div>
+
+      <label class="floating-label" for="id_password">Mot de passe</label>
+      <div class="input-group">
+        <i class="fas fa-lock input-icon"></i>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt"></i> Se connecter
+      </button>
+    </form>
+  </div>
+
+  <div class="login-footer">
+    © 2026 BiblioCampus — Tous droits réservés
+  </div>
+</div>
+
+</body>
+</html>

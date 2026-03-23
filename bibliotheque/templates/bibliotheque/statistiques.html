@@ -1,0 +1,187 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}Statistiques{% endblock %}
+{% block page_title %}Statistiques{% endblock %}
+{% block page_subtitle %}Vue analytique de la bibliothèque{% endblock %}
+
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card blue">
+    <div class="stat-icon blue"><i class="fas fa-book"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_livres }}</div>
+      <div class="stat-label">Total livres</div>
+    </div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ livres_disponibles }}</div>
+      <div class="stat-label">Disponibles</div>
+    </div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_lecteurs }}</div>
+      <div class="stat-label">Lecteurs</div>
+    </div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="fas fa-retweet"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_emprunts }}</div>
+      <div class="stat-label">Total emprunts</div>
+    </div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-icon red"><i class="fas fa-exclamation-circle"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_retards }}</div>
+      <div class="stat-label">Retards actuels</div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+  <!-- Monthly loans chart -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-chart-line" style="color:var(--accent)"></i> Emprunts par mois</span>
+    </div>
+    <div class="card-body">
+      <div class="chart-container">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Books by category chart -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Livres par catégorie</span>
+    </div>
+    <div class="card-body">
+      <div class="chart-container">
+        <canvas id="catChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <!-- Top readers -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-trophy" style="color:var(--warning)"></i> Top 5 lecteurs</span>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Lecteur</th><th>Nombre d'emprunts</th></tr>
+        </thead>
+        <tbody>
+          {% for lecteur in top_lecteurs %}
+          <tr>
+            <td>
+              <a href="{% url 'bibliotheque:detail_lecteur' lecteur.pk %}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+                {{ lecteur.nom_complet }}
+              </a>
+            </td>
+            <td><span class="badge badge-primary">{{ lecteur.nb_emprunts }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:20px;">Aucune donnée</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Top books -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-star" style="color:var(--warning)"></i> Livres les plus empruntés</span>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Livre</th><th>Emprunts</th></tr>
+        </thead>
+        <tbody>
+          {% for livre in top_livres %}
+          <tr>
+            <td>
+              <strong>{{ livre.titre|truncatechars:40 }}</strong>
+              <br><small style="color:var(--text-muted)">{{ livre.auteur }}</small>
+            </td>
+            <td><span class="badge badge-orange">{{ livre.nb_emprunts }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:20px;">Aucune donnée</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const monthlyLabels = {{ monthly_labels|safe }};
+const monthlyValues = {{ monthly_values|safe }};
+const catLabels = {{ cat_labels|safe }};
+const catValues = {{ cat_values|safe }};
+
+// Monthly chart
+new Chart(document.getElementById('monthlyChart'), {
+  type: 'bar',
+  data: {
+    labels: monthlyLabels,
+    datasets: [{
+      label: 'Emprunts',
+      data: monthlyValues,
+      backgroundColor: 'rgba(30,58,95,.75)',
+      borderColor: '#1e3a5f',
+      borderWidth: 1,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,.05)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Category pie chart
+const catColors = ['#1e3a5f','#f97316','#22c55e','#ef4444','#8b5cf6','#3b82f6','#f59e0b','#06b6d4'];
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: {
+    labels: catLabels,
+    datasets: [{
+      data: catValues,
+      backgroundColor: catColors,
+      borderWidth: 2,
+      borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { font: { size: 12 }, padding: 14 } }
+    }
+  }
+});
+</script>
+{% endblock %}

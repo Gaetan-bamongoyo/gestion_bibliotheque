@@ -1,0 +1,82 @@
+{% extends 'bibliotheque/base.html' %}
+{% block title %}{{ titre }}{% endblock %}
+{% block page_title %}{{ titre }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-user-plus" style="color:var(--primary)"></i> {{ titre }}</h1>
+  <a href="{% url 'bibliotheque:liste_gestionnaires' %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+</div>
+
+<div class="card" style="max-width:680px;margin:0 auto;">
+  <div class="card-header">
+    <span class="card-title">Informations du compte</span>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          {{ form.first_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nom d'utilisateur <span style="color:var(--danger)">*</span></label>
+          {{ form.username }}
+          {% if form.username.errors %}<small style="color:var(--danger)">{{ form.username.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Téléphone</label>
+          {{ form.telephone }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rôle</label>
+          {{ form.role }}
+        </div>
+      </div>
+
+      <hr class="divider"/>
+      <h4 style="font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">
+        Mot de passe {% if utilisateur %}(laisser vide pour conserver){% endif %}
+      </h4>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nouveau mot de passe</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}<small style="color:var(--danger)">{{ form.password1.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmer</label>
+          {{ form.password2 }}
+        </div>
+      </div>
+      {% if not utilisateur %}
+      <small style="color:var(--text-muted)">Si laissé vide, le mot de passe par défaut sera : <code>gestionnaire123</code></small>
+      {% endif %}
+
+      <hr class="divider"/>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+        {{ form.is_active }}
+        <label class="form-label" style="margin:0;">Compte actif</label>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <a href="{% url 'bibliotheque:liste_gestionnaires' %}" class="btn btn-outline"><i class="fas fa-times"></i> Annuler</a>
+        <button type="submit" class="btn btn-accent"><i class="fas fa-save"></i> Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
