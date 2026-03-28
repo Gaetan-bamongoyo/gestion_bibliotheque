@@ -216,6 +216,8 @@ def liste_emprunts(request):
     mettre_a_jour_retards()
     statut = request.GET.get('statut', '')
     q = request.GET.get('q', '')
+    lettre = request.GET.get('lettre', '')
+    
     emprunts = Emprunt.objects.select_related('lecteur', 'livre').all()
     if statut:
         emprunts = emprunts.filter(statut=statut)
@@ -223,8 +225,17 @@ def liste_emprunts(request):
         emprunts = emprunts.filter(
             Q(lecteur__nom__icontains=q) | Q(lecteur__prenom__icontains=q) | Q(livre__titre__icontains=q)
         )
+    if lettre:
+        emprunts = emprunts.filter(lecteur__nom__istartswith=lettre)
+
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    
     return render(request, 'bibliotheque/emprunts/liste.html', {
-        'emprunts': emprunts, 'statut': statut, 'q': q
+        'emprunts': emprunts, 
+        'statut': statut, 
+        'q': q,
+        'alphabet': alphabet,
+        'lettre_active': lettre
     })
 
 
@@ -436,3 +447,31 @@ def parametres(request):
         messages.success(request, "Paramètres enregistrés.")
         return redirect('bibliotheque:parametres')
     return render(request, 'bibliotheque/parametres.html', {'form': form, 'params': params})
+
+
+# ─── Rapports ──────────────────────────────────────────────────────────────────
+
+@gestionnaire_ou_admin_required
+def rapport_emprunts(request):
+    date_str = request.GET.get('date', timezone.now().date().isoformat())
+    lettre = request.GET.get('lettre', '')
+    
+    try:
+        selection_date = date.fromisoformat(date_str)
+    except (ValueError, TypeError):
+        selection_date = timezone.now().date()
+
+    emprunts = Emprunt.objects.filter(date_emprunt=selection_date).select_related('lecteur', 'livre', 'enregistre_par')
+    
+    if lettre:
+        emprunts = emprunts.filter(lecteur__nom__istartswith=lettre)
+
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    
+    return render(request, 'bibliotheque/emprunts/date_report.html', {
+        'emprunts': emprunts,
+        'selection_date': selection_date,
+        'today': timezone.now().date(),
+        'alphabet': alphabet,
+        'lettre_active': lettre
+    })

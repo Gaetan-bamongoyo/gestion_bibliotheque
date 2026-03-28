@@ -3,6 +3,52 @@
 {% block page_title %}Gestion des emprunts{% endblock %}
 {% block page_subtitle %}{{ emprunts.count }} emprunt{{ emprunts.count|pluralize }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .alphabet-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 24px;
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alphabet-filter a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        text-decoration: none;
+        background: #f1f5f9;
+        color: var(--text);
+        font-weight: 600;
+        border-radius: 6px;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .alphabet-filter a:hover {
+        background: var(--accent);
+        color: white;
+    }
+
+    .alphabet-filter a.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .alphabet-filter a.reset {
+        width: auto;
+        padding: 0 12px;
+        background: #e2e8f0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
   <h1><i class="fas fa-book-reader" style="color:var(--primary)"></i> Emprunts</h1>
@@ -26,6 +72,14 @@
   <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrer</button>
   <a href="{% url 'bibliotheque:liste_emprunts' %}" class="btn btn-outline"><i class="fas fa-undo"></i> Réinitialiser</a>
 </form>
+
+<!-- ALPHABET FILTER -->
+<div class="alphabet-filter">
+  <a href="?q={{ q }}&statut={{ statut }}" class="reset {% if not lettre_active %}active{% endif %}">Tous</a>
+  {% for char in alphabet %}
+    <a href="?q={{ q }}&statut={{ statut }}&lettre={{ char }}" class="{% if lettre_active == char %}active{% endif %}">{{ char }}</a>
+  {% endfor %}
+</div>
 
 <div class="card">
   <div class="table-wrapper">

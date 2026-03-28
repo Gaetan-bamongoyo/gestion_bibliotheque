@@ -50,4 +50,7 @@ urlpatterns = [
 
     # Paramètres (admin)
     path('parametres/', views.parametres, name='parametres'),
+
+    # Rapports
+    path('emprunts/rapport/', views.rapport_emprunts, name='rapport_emprunts'),
 ]

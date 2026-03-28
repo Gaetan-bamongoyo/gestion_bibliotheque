@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Connexion — BiblioCampus</title>
+  <title>Connexion — Biblio ISP/Isiro</title>
   <link rel="stylesheet" href="{% static 'bibliotheque/css/style.css' %}"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
@@ -29,13 +29,13 @@
     }
 
     .login-logo {
-      width: 72px; height: 72px;
-      background: linear-gradient(135deg, #f97316, #fb923c);
-      border-radius: 20px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
+      width: 100px; height: 100px;
       margin: 0 auto 16px;
-      box-shadow: 0 8px 24px rgba(249,115,22,.35);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .login-logo img {
+        width: 100%; height: auto;
     }
 
     .login-header h1 {
@@ -147,8 +147,10 @@
 
 <div class="login-container">
   <div class="login-header">
-    <div class="login-logo"><i class="fas fa-book-reader"></i></div>
-    <h1>BiblioCampus</h1>
+    <div class="login-logo">
+      <img src="{% static 'bibliotheque/img/logo_isp.png' %}" alt="ISP Logo">
+    </div>
+    <h1>Biblio ISP/Isiro</h1>
     <p>Système de gestion de bibliothèque</p>
   </div>
 
@@ -192,7 +194,7 @@
   </div>
 
   <div class="login-footer">
-    © 2026 BiblioCampus — Tous droits réservés
+    © 2026 Biblio ISP/Isiro — Tous droits réservés
   </div>
 </div>
 

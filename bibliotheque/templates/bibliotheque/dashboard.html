@@ -2,7 +2,7 @@
 
 {% block title %}Tableau de bord{% endblock %}
 {% block page_title %}Tableau de bord{% endblock %}
-{% block page_subtitle %}Vue d'ensemble de la bibliothèque{% endblock %}
+{% block page_subtitle %}Bienvenue à la bibliothèque numérique de l'ISP/Isiro{% endblock %}
 
 {% block content %}
 
@@ -137,6 +137,9 @@
     </a>
     <a href="{% url 'bibliotheque:liste_emprunts' %}?statut=en_retard" class="btn btn-danger">
       <i class="fas fa-clock"></i> Voir les retards
+    </a>
+    <a href="{% url 'bibliotheque:rapport_emprunts' %}" class="btn btn-primary">
+      <i class="fas fa-file-invoice"></i> Rapport d'emprunts
     </a>
     {% if request.user.est_admin %}
     <a href="{% url 'bibliotheque:ajouter_livre' %}" class="btn btn-success">

@@ -1,0 +1,208 @@
+{% extends 'bibliotheque/base.html' %}
+{% load static %}
+
+{% block title %}Rapport d'emprunts - {{ selection_date|date:"d/m/Y" }}{% endblock %}
+{% block page_title %}Rapport d'emprunts{% endblock %}
+{% block page_subtitle %}Liste des lecteurs ayant emprunté des livres le {{ selection_date|date:"d F Y" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .sidebar, .topbar, .btn, .no-print, .messages-container {
+            display: none !important;
+        }
+        .main-wrapper {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+        .content {
+            padding: 0 !important;
+        }
+        .report-header {
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+        th, td {
+            border: 1px solid #ddd !important;
+            padding: 10px !important;
+            text-align: left !important;
+        }
+        th {
+            background-color: #f5f5f5 !important;
+            -webkit-print-color-adjust: exact;
+        }
+    }
+
+    .report-header {
+        display: none;
+    }
+
+    .filter-section {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alphabet-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .alphabet-filter a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        text-decoration: none;
+        background: #f1f5f9;
+        color: var(--text);
+        font-weight: 600;
+        border-radius: 6px;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .alphabet-filter a:hover {
+        background: var(--accent);
+        color: white;
+    }
+
+    .alphabet-filter a.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .alphabet-filter a.reset {
+        width: auto;
+        padding: 0 12px;
+        background: #e2e8f0;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .report-table-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="no-print">
+    <div class="filter-section">
+        <form method="get" style="display: flex; align-items: flex-end; gap: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+            <div class="form-group">
+                <label for="date" style="display: block; margin-bottom: 5px; font-weight: 600;">Sélectionner une date</label>
+                <input type="date" name="date" id="date" value="{{ selection_date|date:'Y-m-d' }}" class="form-control" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Filtrer
+            </button>
+            <button type="button" onclick="window.print()" class="btn btn-success">
+                <i class="fas fa-print"></i> Imprimer le rapport
+            </button>
+        </form>
+
+        <div class="alphabet-filter">
+            <span style="font-weight: 600; width: 100%; margin-bottom: 5px;">Filtrer par nom (lettre) :</span>
+            <a href="?date={{ selection_date|date:'Y-m-d' }}" class="reset {% if not lettre_active %}active{% endif %}">Tous</a>
+            {% for char in alphabet %}
+                <a href="?date={{ selection_date|date:'Y-m-d' }}&lettre={{ char }}" class="{% if lettre_active == char %}active{% endif %}">{{ char }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- En-tête pour l'impression -->
+<div class="report-header">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <img src="{% static 'bibliotheque/img/logo_isp.png' %}" alt="ISP Logo" style="height: 80px;">
+        <div>
+            <h1 style="margin: 0; color: #1a2a6c;">ISP / ISIRO</h1>
+            <h3 style="margin: 5px 0 0 0; color: #555;">Bibliothèque Numérique</h3>
+        </div>
+    </div>
+    <div style="text-align: right;">
+        <h2 style="margin: 0;">Rapport d'Emprunts</h2>
+        <p style="margin: 5px 0 0 0;">Date : <strong>{{ selection_date|date:"d/m/Y" }}</strong></p>
+    </div>
+</div>
+
+<div class="report-table-card">
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Lecteur</th>
+                    <th>Livre Emprunté</th>
+                    <th>Retour Prévu</th>
+                    <th>Géré par</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emprunt in emprunts %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <strong>{{ emprunt.lecteur.nom_complet }}</strong><br>
+                        <small style="color: #666;">{{ emprunt.lecteur.telephone }}</small>
+                    </td>
+                    <td>{{ emprunt.livre.titre }}</td>
+                    <td>{{ emprunt.date_retour_prevue|date:"d/m/Y" }}</td>
+                    <td>{{ emprunt.enregistre_par.get_full_name|default:emprunt.enregistre_par.username }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #888;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                        Aucun emprunt enregistré pour cette date.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="report-footer" style="margin-top: 50px; display: none;">
+    <div style="display: flex; justify-content: space-between;">
+        <div style="text-align: center; width: 200px;">
+            <p>Le Bibliothécaire</p>
+            <div style="height: 80px; border-bottom: 1px solid #333; margin-top: 10px;"></div>
+        </div>
+        <p style="align-self: flex-end;">Fait à Isiro, le {{ today|date:"d/m/Y" }}</p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .report-footer {
+            display: block !important;
+        }
+    }
+</style>
+{% endblock %}

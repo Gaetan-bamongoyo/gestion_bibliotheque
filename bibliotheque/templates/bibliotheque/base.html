@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Bibliothèque{% endblock %} — BiblioCampus</title>
+  <title>{% block title %}Bibliothèque{% endblock %} — Biblio ISP/Isiro</title>
   <link rel="stylesheet" href="{% static 'bibliotheque/css/style.css' %}"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   {% block extra_css %}{% endblock %}
@@ -14,9 +14,11 @@
 <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-icon"><i class="fas fa-book-reader"></i></div>
+    <div class="brand-icon">
+      <img src="{% static 'bibliotheque/img/logo_isp.png' %}" alt="ISP" style="max-width: 40px; height: auto;">
+    </div>
     <div class="brand-text">
-      <h2>BiblioCampus</h2>
+      <h2>Biblio ISP/Isiro</h2>
       <small>Gestion de bibliothèque</small>
     </div>
   </div>
